@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 
 public class MainFragment extends Fragment {
@@ -38,6 +39,9 @@ public class MainFragment extends Fragment {
           }
 
     public void Fragment_buttonClicked (View view){
+
+        Toast.makeText(getActivity(),"ButtonPressed",Toast.LENGTH_LONG).show();
+
 
 
 

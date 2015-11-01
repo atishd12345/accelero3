@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -21,14 +22,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-       // RelativeLayout mainLayout = new RelativeLayout(this);
-
-
-
         setContentView(R.layout.activity_main);
 
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_main_container, new MainFragment()).commit();
+
         }
+    }
 
 
 
@@ -46,12 +47,30 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
+            //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Toast.makeText(this, "SettingsPressed", Toast.LENGTH_LONG).show();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+
+//    /**
+//     * A placeholder fragment containing a simple view.
+//     */
+//    public static class PlaceholderFragment extends Fragment {
+//
+//        public PlaceholderFragment() {
+//        }
+//
+//        @Override
+//        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+//                                 Bundle savedInstanceState) {
+//            View rootView = inflater.inflate(R.layout.fragment_display_message,
+//                    container, false);
+//            return rootView;
+//        }
+//    }
 }

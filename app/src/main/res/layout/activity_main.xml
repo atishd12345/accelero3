@@ -8,12 +8,10 @@
     tools:ignore="MergeRootFrame" >
 
 
-    <fragment
+    <FrameLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:name="com.example.atish.accelero3.MainFragment"
-        android:id="@+id/fragment_menu"
+        android:id="@+id/fragment_main_container"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        tools:layout="@layout/fragment_main" />
+        android:layout_centerHorizontal="true"/>
 </RelativeLayout>

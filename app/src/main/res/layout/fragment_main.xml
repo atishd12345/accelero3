@@ -15,7 +15,6 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="15dp"
     android:width="300dp"
-    android:text="top"
     android:layout_gravity="center_horizontal" />
 
     <EditText
@@ -24,7 +23,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:width="300dp"
-        android:text="bottom"
         android:layout_gravity="center_horizontal" />
 
     <Button
@@ -39,5 +37,6 @@
     <ListView android:text="@string/hello_world" android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         />
+
 
 </LinearLayout>
