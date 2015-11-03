@@ -1,5 +1,6 @@
 package com.example.atish.accelero3;
 
+import android.content.Intent;
 import android.support.annotation.AnimRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -79,7 +80,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            Toast.makeText(this, "Settings Pressed", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+         //   Toast.makeText(this, "Settings Pressed", Toast.LENGTH_LONG).show();
             return true;
         }
 
@@ -107,6 +110,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.nav_home) {
             // Handle the Home action
         } else if (id == R.id.nav_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_help) {
 
