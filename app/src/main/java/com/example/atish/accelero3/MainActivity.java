@@ -1,7 +1,9 @@
 package com.example.atish.accelero3;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -16,16 +18,20 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, RoomListFragment.Callbacks {
 
 
-
-   //   Used to store the last screen title. For use in {@link restoreActionBar()}.
-
+    private static final int ASK_ACTIVATION = 1;
+    private static final int ASK_CONNECTION = 2;
+    private BluetoothAdapter btadapter = null;
+    private static String MAC = null;
 
     private boolean mTwoPane;
+
+    //   Used to store the last screen title. For use in {@link restoreActionBar()}.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +45,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         }
 
-
+        //INITIALISE BLUETOOTH
+        BluetoothInit();
 
         //initialise floating action button
         FloatingActionButton();
@@ -65,6 +72,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode){
+            case ASK_ACTIVATION:
+                if(resultCode== Activity.RESULT_OK)
+                    Toast.makeText(MainActivity.this, "BT active", Toast.LENGTH_SHORT).show();
+                else {
+                    Toast.makeText(MainActivity.this, "BT inactive", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+        }
+
+
+    }
+
+    public void BluetoothInit(){
+        btadapter = BluetoothAdapter.getDefaultAdapter();
+
+        if(btadapter==null){
+            Toast.makeText(MainActivity.this, "oops! NO BT", Toast.LENGTH_SHORT).show();
+        }
+
+        if(btadapter.isEnabled()){
+            Intent active = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(active, ASK_ACTIVATION);
+        }
+
+
+    }
     //sets up Navigation drawer
     public void NavigationDrawer(){
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -164,6 +200,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //        FragmentManager fragmentManager = getFragmentManager();
 //        android.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
         RoomListFragment RoomListFrag = new RoomListFragment();
+        MainFragment MainFrag = new MainFragment();
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
@@ -186,7 +223,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         } else if (id == R.id.nav_about) {
 
-        }
+        } else if (id == R.id.nav_test) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, MainFrag)
+                    .commit();
+
+    }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

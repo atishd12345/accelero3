@@ -9,21 +9,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
 public class MainFragment extends Fragment {
 
-    private static EditText topTextInpuText;
-    private static EditText bottomTextInput;
+    private static EditText test_EditText;
+    private static TextView test_TextView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,@Nullable Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.fragment_main,container,false);
-
-            topTextInpuText = (EditText) view.findViewById(R.id.topTextInput);
-            bottomTextInput = (EditText) view.findViewById(R.id.bottomTextInput);
-            final Button fragment_button = (Button) view.findViewById(R.id.fragment_button);
+        test_TextView = (TextView) view.findViewById(R.id.test_TextView);
+        test_EditText = (EditText) view.findViewById(R.id.test_EditText);
+        final Button bt_connect = (Button) view.findViewById(R.id.bt_connect);
+        final Button bt_disconnect = (Button) view.findViewById(R.id.bt_disconnect);
+        final Button fragment_button = (Button) view.findViewById(R.id.test_fragment_button);
 
         fragment_button.setOnClickListener(
                 new View.OnClickListener(){

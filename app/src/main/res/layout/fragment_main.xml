@@ -10,29 +10,43 @@
     android:orientation="vertical">
 
 <EditText
-    android:id="@+id/topTextInput"
-    android:layout_width="wrap_content"
+    android:id="@+id/test_EditText"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="15dp"
     android:width="300dp"
-    android:layout_gravity="center_horizontal" />
-
-    <EditText
-        android:id="@+id/bottomTextInput"
+    android:layout_gravity="center_horizontal"
+    android:text="Test" />
+    <TextView
+        android:id="@+id/test_TextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:width="300dp"
         android:layout_gravity="center_horizontal" />
 
+
+
     <Button
-        android:id="@+id/fragment_button"
+        android:id="@+id/test_fragment_button"
         android:text="@string/button_name"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="15dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
+    <Button
+        android:id="@+id/bt_connect"
+        android:text="Connect"
+        android:layout_marginTop="15dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/bt_disconnect"
+        android:text="Disconnect"
+        android:layout_marginTop="15dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
     <ListView android:text="@string/hello_world" android:layout_width="wrap_content"
         android:layout_height="wrap_content"
