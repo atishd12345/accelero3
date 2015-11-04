@@ -3,7 +3,9 @@ package com.example.atish.accelero3;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -77,6 +79,8 @@ public class RoomListFragment extends ListFragment {
                 android.R.id.text1,
                 DummyContent.ITEMS));
     }
+
+
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
