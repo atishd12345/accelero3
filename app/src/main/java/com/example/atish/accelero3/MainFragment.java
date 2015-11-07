@@ -54,6 +54,11 @@ public class MainFragment extends Fragment {
         final Button bt_disconnect = (Button) view.findViewById(R.id.bt_disconnect);
         final Button fragment_button = (Button) view.findViewById(R.id.test_fragment_button);
 
+        final Button btn_ON_1 = (Button) view.findViewById(R.id.btn_on_1);
+        final Button btn_OFF_1 = (Button) view.findViewById(R.id.btn_off_1);
+        final Button btn_ON_2 = (Button) view.findViewById(R.id.btn_on_2);
+        final Button btn_OFF_2 = (Button) view.findViewById(R.id.btn_off_2);
+
         bt_connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -95,6 +100,18 @@ public class MainFragment extends Fragment {
                 if (connection != false) {
                     Amarino.sendDataToArduino(getActivity(), MAC, 'A', 0);
                 } else {
+                    Toast.makeText(getActivity(), "Bluetooth disconnected", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        btn_ON_2.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                if(connection != false){
+                    Amarino.sendDataToArduino(getActivity(), MAC, 'B', 1);
+                }
+                else{
                     Toast.makeText(getActivity(), "Bluetooth disconnected", Toast.LENGTH_SHORT).show();
                 }
             }
