@@ -3,7 +3,10 @@ package com.example.atish.accelero3;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -16,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import at.abraxas.amarino.Amarino;
+import at.abraxas.amarino.AmarinoIntent;
 
 
 public class MainFragment extends Fragment {
@@ -26,6 +30,8 @@ public class MainFragment extends Fragment {
     private BluetoothAdapter btadapter = null;
     private static String MAC = null;
     private boolean connection = false;
+
+    private StatusAmarino statusAmarino = new StatusAmarino();
 
     private static EditText test_EditText;
     private static TextView test_TextView;
@@ -57,15 +63,51 @@ public class MainFragment extends Fragment {
             }
         });
 
-        bt_disconnect.setOnClickListener(new View.OnClickListener(){
+
+
+        bt_disconnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                 if(connection != false){
-                    Amarino.disconnect(getActivity(),MAC);
-                 }
-//                else{
-//                     Toast.makeText(getActivity(),"Bluetooth is not acivated ",Toast.LENGTH_SHORT).show();
-//                 }
+                if (connection != false) {
+                    getActivity().unregisterReceiver(statusAmarino);
+                    Amarino.disconnect(getActivity(), MAC);
+
+                    connection = false;
+                }
+            }
+        });
+
+       btn_ON_1.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                if(connection != false){
+                    Amarino.sendDataToArduino(getActivity(), MAC, 'A', 1);
+                }
+                else{
+                    Toast.makeText(getActivity(), "Bluetooth disconnected", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        btn_OFF_1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (connection != false) {
+                    Amarino.sendDataToArduino(getActivity(), MAC, 'A', 0);
+                } else {
+                    Toast.makeText(getActivity(), "Bluetooth disconnected", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        btn_OFF_2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (connection != false) {
+                    Amarino.sendDataToArduino(getActivity(), MAC, 'B', 0);
+                } else {
+                    Toast.makeText(getActivity(), "Bluetooth disconnected", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -82,7 +124,8 @@ public class MainFragment extends Fragment {
 
     public void Fragment_buttonClicked (View view){
 
-       // BluetoothInit();
+      //  BluetoothInit();
+        enableBT(view);
        // Toast.makeText(getActivity(),"ButtonPressed",Toast.LENGTH_LONG).show();
     setBluetooth(true);
     }
@@ -103,12 +146,22 @@ public class MainFragment extends Fragment {
     public void BluetoothInit(){
         btadapter = BluetoothAdapter.getDefaultAdapter();
         if(!btadapter.isEnabled()){
-            Intent active = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(active, ASK_ACTIVATION);
+         //   Intent active = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), ASK_ACTIVATION);
 
         }
-        if(btadapter==null){
+        if(btadapter== null){
             Toast.makeText(getActivity(), "oops! NO BT", Toast.LENGTH_SHORT).show();
+        }
+    }
+    public void enableBT(View view){
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (!mBluetoothAdapter.isEnabled()){
+            Intent intentBtEnabled = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            // The REQUEST_ENABLE_BT constant passed to startActivityForResult() is a locally defined integer (which must be greater than 0), that the system passes back to you in your onActivityResult()
+            // implementation as the requestCode parameter.
+            int REQUEST_ENABLE_BT = 1;
+            startActivityForResult(intentBtEnabled, REQUEST_ENABLE_BT);
         }
     }
 
@@ -116,7 +169,7 @@ public class MainFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode){
             case ASK_ACTIVATION:
-                if(resultCode == Activity.RESULT_OK)
+                if (resultCode == Activity.RESULT_OK)
                     Toast.makeText(getActivity(), "BT active", Toast.LENGTH_LONG).show();
                 else {
                     Toast.makeText(getActivity(), "BT inactive", Toast.LENGTH_LONG).show();
@@ -127,6 +180,7 @@ public class MainFragment extends Fragment {
                     MAC = data.getExtras().getString(DeviceList.MAC_ADDRESS);
                     Toast.makeText(getActivity(),"MAC Address : " +MAC,Toast.LENGTH_LONG).show();
 
+                    getActivity().registerReceiver(statusAmarino, new IntentFilter(AmarinoIntent.ACTION_CONNECTED ));
                     Amarino.connect(getActivity(),MAC);
                 }
                 else{
@@ -137,6 +191,21 @@ public class MainFragment extends Fragment {
         }
     }
 
+    public class StatusAmarino extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+
+            if(AmarinoIntent.ACTION_CONNECT.equals(action)) {
+                connection = true;
+                Toast.makeText(getActivity(), "Bluetooth is connected", Toast.LENGTH_LONG).show();
+            }
+                else if(AmarinoIntent.ACTION_CONNECTION_FAILED.equals(action))
+                Toast.makeText(getActivity(),"Error During connection",Toast.LENGTH_LONG).show();
+        }
+
+    }
 
 
 }
