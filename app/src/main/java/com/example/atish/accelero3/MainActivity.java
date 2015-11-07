@@ -24,10 +24,12 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, RoomListFragment.Callbacks {
 
 
-    private static final int ASK_ACTIVATION = 1;
-    private static final int ASK_CONNECTION = 2;
-    private BluetoothAdapter btadapter = null;
-    private static String MAC = null;
+
+    //moved into main fragment
+    //   private static final int ASK_ACTIVATION = 1;
+  //  private static final int ASK_CONNECTION = 2;
+//    private BluetoothAdapter btadapter = null;
+//    private static String MAC = null;
 
     private boolean mTwoPane;
 
@@ -45,14 +47,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         }
 
-        //INITIALISE BLUETOOTH
-        BluetoothInit();
-
         //initialise floating action button
         FloatingActionButton();
         //set up navigation Drawer
         NavigationDrawer();
 
+        //INITIALISE BLUETOOTH
+        // moved to main fragment
+      //  BluetoothInit();
 
         // masterflow
 
@@ -72,35 +74,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode){
-            case ASK_ACTIVATION:
-                if(resultCode== Activity.RESULT_OK)
-                    Toast.makeText(MainActivity.this, "BT active", Toast.LENGTH_SHORT).show();
-                else {
-                    Toast.makeText(MainActivity.this, "BT inactive", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-        }
 
 
-    }
-
-    public void BluetoothInit(){
-        btadapter = BluetoothAdapter.getDefaultAdapter();
-
-        if(btadapter==null){
-            Toast.makeText(MainActivity.this, "oops! NO BT", Toast.LENGTH_SHORT).show();
-        }
-
-        if(btadapter.isEnabled()){
-            Intent active = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(active, ASK_ACTIVATION);
-        }
 
 
-    }
+
+
     //sets up Navigation drawer
     public void NavigationDrawer(){
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

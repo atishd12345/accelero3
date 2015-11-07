@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -41,6 +42,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.atish.accelero3.RoomListActivity" />
         </activity>
+        <activity android:name=".DeviceList"
+            android:theme="@android:style/Theme.Dialog"
+            android:label="Paired Devices">
+
+        </activity>
+
+
     </application>
 
 </manifest>
