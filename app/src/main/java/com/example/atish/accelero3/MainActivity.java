@@ -23,7 +23,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, RoomListFragment.Callbacks {
 
-
+private static final String TAG = "accelero";
 
     //moved into main fragment
     //   private static final int ASK_ACTIVATION = 1;
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+    Log.v(TAG, "MainActivity Phone onCreate mTwoPane" +mTwoPane);
         // start the Main fragment
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -59,12 +59,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // masterflow
 
         if (findViewById(R.id.room_detail_container) != null) {
+        
             // The detail container view will be present only in the
             // large-screen layouts (res/values-large and
             // res/values-sw600dp). If this view is present, then the
             // activity should be in two-pane mode.
             mTwoPane = true;
-
+        Log.v(TAG, "MainActivity Tablet mTwoPane "+mTwoPane);
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
             ((RoomListFragment) getSupportFragmentManager()
@@ -82,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //sets up Navigation drawer
     public void NavigationDrawer(){
+         Log.v(TAG, "MainActivity NavigationDrawer ");
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -97,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
     //sets up floating action button
      public void FloatingActionButton(){
+          Log.v(TAG, "MainActivity FloatingActionButton ");
          FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
          fab.setOnClickListener(new View.OnClickListener() {
              @Override
@@ -113,7 +116,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     @Override
     public void onItemSelected(String id) {
+         Log.v(TAG, "MainActivity onItemSelected mTwoPane"+mTwoPane);
         if (mTwoPane) {
+            Log.v(TAG, "MainActivity onItemSelected Tablet inside ");
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
             // fragment transaction.
@@ -126,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .commit();
 
         } else {
+            Log.v(TAG, "MainActivity onItemSelected Else inside ");
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
             Intent detailIntent = new Intent(this, RoomDetailActivity.class);
@@ -151,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Log.v(TAG, "MainActivity Action_settings Selected ");
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
          //   Toast.makeText(this, "Settings Pressed", Toast.LENGTH_LONG).show();
@@ -164,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // methods for implementing navdrawer
     @Override
     public void onBackPressed() {
+        Log.v(TAG, "MainActivity Back Pressed ");
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -183,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
+             Log.v(TAG, "MainActivity Home Selected ");
             // Handle the Home action
             String tag= "tag";
             // getFragmentManager().beginTransaction().replace(R.id.container, new RoomListFragment(), "stuff").commit();
@@ -195,14 +204,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //                    .commit();
 
         } else if (id == R.id.nav_settings) {
+             Log.v(TAG, "MainActivity Nav_settings Selected ");
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
 
         } else if (id == R.id.nav_help) {
+             Log.v(TAG, "MainActivity Help Selected ");
 
         } else if (id == R.id.nav_about) {
+             Log.v(TAG, "MainActivity About Selected ");
+             Toast.makeText(getApplicationContext(), "ABOUT",
+                      Toast.LENGTH_SHORT).show();
 
         } else if (id == R.id.nav_test) {
+             Log.v(TAG, "MainActivity Test Selected ");
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, MainFrag)
                     .commit();
