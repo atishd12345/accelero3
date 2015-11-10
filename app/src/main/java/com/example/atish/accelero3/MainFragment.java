@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,8 @@ import at.abraxas.amarino.AmarinoIntent;
 
 
 public class MainFragment extends Fragment {
+
+    private static final String TAG = "accelero";
 
     //taken from Main activity
     private static final int ASK_ACTIVATION = 1;
@@ -89,7 +92,7 @@ public class MainFragment extends Fragment {
                     Amarino.sendDataToArduino(getActivity(), MAC, 'A', 1);
                 }
                 else{
-                    Toast.makeText(getActivity(), "Bluetooth disconnected", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "BTN ON 1", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -100,7 +103,7 @@ public class MainFragment extends Fragment {
                 if (connection != false) {
                     Amarino.sendDataToArduino(getActivity(), MAC, 'A', 0);
                 } else {
-                    Toast.makeText(getActivity(), "Bluetooth disconnected", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "BTN OFF 1", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -112,7 +115,7 @@ public class MainFragment extends Fragment {
                     Amarino.sendDataToArduino(getActivity(), MAC, 'B', 1);
                 }
                 else{
-                    Toast.makeText(getActivity(), "Bluetooth disconnected", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "BTN ON 2", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -123,7 +126,7 @@ public class MainFragment extends Fragment {
                 if (connection != false) {
                     Amarino.sendDataToArduino(getActivity(), MAC, 'B', 0);
                 } else {
-                    Toast.makeText(getActivity(), "Bluetooth disconnected", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "BTN Off 2", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -142,9 +145,10 @@ public class MainFragment extends Fragment {
     public void Fragment_buttonClicked (View view){
 
       //  BluetoothInit();
-        enableBT(view);
+     //   enableBT(view);
        // Toast.makeText(getActivity(),"ButtonPressed",Toast.LENGTH_LONG).show();
-    setBluetooth(true);
+        setBluetooth(true);
+        Log.v(TAG, "Fragment button after setting on bluetooth");
     }
 
     public static boolean setBluetooth(boolean enable) {
@@ -184,6 +188,7 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.v(TAG, "REQUEST CODE " +requestCode +" ResultCode" +resultCode);
         switch (requestCode){
             case ASK_ACTIVATION:
                 if (resultCode == Activity.RESULT_OK)
@@ -194,7 +199,9 @@ public class MainFragment extends Fragment {
                 }
             case ASK_CONNECTION:
                 if(resultCode ==Activity.RESULT_OK){
+
                     MAC = data.getExtras().getString(DeviceList.MAC_ADDRESS);
+                    Log.v(TAG, "MAC "+MAC );
                     Toast.makeText(getActivity(),"MAC Address : " +MAC,Toast.LENGTH_LONG).show();
 
                     getActivity().registerReceiver(statusAmarino, new IntentFilter(AmarinoIntent.ACTION_CONNECTED ));
@@ -203,8 +210,7 @@ public class MainFragment extends Fragment {
                 else{
                     Toast.makeText(getActivity(),"Failed to obtain MAC Address",Toast.LENGTH_LONG).show();
                 }
-            default:
-                Toast.makeText(getActivity(),"WTF",Toast.LENGTH_LONG).show();
+
         }
     }
 

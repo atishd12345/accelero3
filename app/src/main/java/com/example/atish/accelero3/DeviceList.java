@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -21,6 +22,8 @@ import java.util.Set;
  */
 public class DeviceList extends ListActivity{
 
+    private static final String TAG = "accelero";
+
     private BluetoothAdapter btadapter;
     static String MAC_ADDRESS = null;
 
@@ -28,7 +31,7 @@ public class DeviceList extends ListActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
+        Log.v(TAG, "Entering Device list");
         ArrayAdapter<String> ArrayBluetooth = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
         btadapter = BluetoothAdapter.getDefaultAdapter();
@@ -42,6 +45,7 @@ public class DeviceList extends ListActivity{
             }
         }
         setListAdapter(ArrayBluetooth);
+        Log.v(TAG, "Exiting Device list");
     }
 
     @Override
@@ -51,8 +55,9 @@ public class DeviceList extends ListActivity{
         String InfoGeneral = ((TextView) v).getText().toString();
         String Address = InfoGeneral.substring(InfoGeneral.length() - 17);
         Intent ReturnMAC = new Intent();
-        ReturnMAC.putExtra(MAC_ADDRESS,Address);
+        ReturnMAC.putExtra(MAC_ADDRESS, Address);
         setResult(RESULT_OK, ReturnMAC);
+        Log.v(TAG, "DEVICE LIST MAC " +Address +" Infogeneral " +InfoGeneral);
         finish();
     }
 }
