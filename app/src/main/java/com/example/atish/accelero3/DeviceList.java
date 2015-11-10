@@ -31,7 +31,7 @@ public class DeviceList extends ListActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.v(TAG, "Entering Device list");
+        Log.v(TAG, "onCreate Device list");
         ArrayAdapter<String> ArrayBluetooth = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
         btadapter = BluetoothAdapter.getDefaultAdapter();
@@ -45,7 +45,7 @@ public class DeviceList extends ListActivity{
             }
         }
         setListAdapter(ArrayBluetooth);
-        Log.v(TAG, "Exiting Device list");
+        Log.v(TAG, "onCreate List Adapter set up");
     }
 
     @Override
@@ -57,7 +57,7 @@ public class DeviceList extends ListActivity{
         Intent ReturnMAC = new Intent();
         ReturnMAC.putExtra(MAC_ADDRESS, Address);
         setResult(RESULT_OK, ReturnMAC);
-        Log.v(TAG, "DEVICE LIST MAC " +Address +" Infogeneral " +InfoGeneral);
+        Log.v(TAG, "onClick selected MAC " +MAC_ADDRESS +Address +" Infogeneral " +InfoGeneral);
         finish();
     }
 }
