@@ -15,6 +15,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,7 +40,7 @@ private static final String TAG = "accelero";
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-    Log.v(TAG, "MainActivity Phone onCreate mTwoPane" +mTwoPane);
+    Log.v(TAG, "MainActivity Phone onCreate mTwoPane" + mTwoPane);
         // start the Main fragment
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -65,7 +66,7 @@ private static final String TAG = "accelero";
             // res/values-sw600dp). If this view is present, then the
             // activity should be in two-pane mode.
             mTwoPane = true;
-        Log.v(TAG, "MainActivity Tablet mTwoPane "+mTwoPane);
+        Log.v(TAG, "MainActivity Tablet mTwoPane " + mTwoPane);
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
             ((RoomListFragment) getSupportFragmentManager()
@@ -228,5 +229,6 @@ private static final String TAG = "accelero";
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
 
 }

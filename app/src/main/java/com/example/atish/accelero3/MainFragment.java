@@ -81,6 +81,7 @@ public class MainFragment extends Fragment {
                     Amarino.disconnect(getActivity(), MAC);
                      Log.v(TAG, "bt_disconnect onclick After Amarino disconnect");
                     connection = false;
+
                 }
             }
              //setBluetooth(false);
@@ -149,7 +150,7 @@ public class MainFragment extends Fragment {
     public void Fragment_buttonClicked (View view){
 
       //  BluetoothInit();
-     //   enableBT(view);
+     //   BT(view);
        // Toast.makeText(getActivity(),"ButtonPressed",Toast.LENGTH_LONG).show();
         setBluetooth(true);
         Log.v(TAG, "Fragment button after setting on bluetooth");
@@ -213,8 +214,10 @@ public class MainFragment extends Fragment {
                     Log.v(TAG, "ASK_CONNECTION MAC "+MAC );
                     Toast.makeText(getActivity(),"MAC Address : " +MAC,Toast.LENGTH_LONG).show();
 
-                    getActivity().registerReceiver(statusAmarino, new IntentFilter(AmarinoIntent.ACTION_CONNECTED ));
-                    Amarino.connect(getActivity(),MAC);
+                    getActivity().registerReceiver(statusAmarino, new IntentFilter(AmarinoIntent.ACTION_CONNECTED));
+                    Amarino.connect(getActivity(), MAC);
+                    Log.v(TAG, "completed Amarino.connect");
+                    connection = true;
                 }
                 else{
                     Toast.makeText(getActivity(),"Failed to obtain MAC Address",Toast.LENGTH_LONG).show();
@@ -224,7 +227,8 @@ public class MainFragment extends Fragment {
     }
 
     public class StatusAmarino extends BroadcastReceiver {
-        Log.v(TAG, "StatusAmarino Broadcastreveiver connection "+connection );
+
+
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
@@ -236,7 +240,11 @@ public class MainFragment extends Fragment {
             }
                 else if(AmarinoIntent.ACTION_CONNECTION_FAILED.equals(action))
                 Toast.makeText(getActivity(),"Error During connection",Toast.LENGTH_LONG).show();
+            else{
+                Log.v(TAG, "StatusAmarino failed on reveive but entered Connection "+connection );
+            }
         }
+
 
     }
 
