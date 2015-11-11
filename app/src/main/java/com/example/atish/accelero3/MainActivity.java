@@ -21,10 +21,83 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import at.abraxas.amarino.Amarino;
+import at.abraxas.amarino.AmarinoConfigured;
+import at.abraxas.amarino.log.Logger;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, RoomListFragment.Callbacks {
 
 private static final String TAG = "accelero";
+
+//This takes care of receiving intents
+public static class ArduinoReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent != null) {
+				String action = intent.getAction();
+				if (action == null)
+					return;
+				ServiceIntentConfig configuredIntents = new ServiceIntentConfig();
+				if (configuredIntents.getIntentNameActionConnect().equals(
+						action)) {
+					Logger.d(TAG, "CONNECT request received");
+					 Log.v(TAG, "CONNECT request received ");
+					Intent i = new Intent(context, BTService.class);
+					i.setAction(configuredIntents.getIntentNameActionConnect());
+					i.replaceExtras(intent);
+					context.startService(i);
+				} else if (configuredIntents.getIntentNameActionReceived()
+						.equals(action)) {
+					Logger.d(TAG, "DATA_RECEIVED request received");
+						 Log.v(TAG, "DATA_RECEIVED request received");
+					@SuppressWarnings("unused")
+					char[] chData = null;
+					@SuppressWarnings("unused")
+					String strData = null;
+
+					// the device address from which the data was sent, we don't
+					// need it
+					// here but to demonstrate how you retrieve it
+					@SuppressWarnings("unused")
+					final String address = intent
+							.getStringExtra(ServiceIntentConfig.EXTRA_DEVICE_ADDRESS);
+
+					// the type of data which is added to the intent
+					final int dataType = intent.getIntExtra(
+							ServiceIntentConfig.EXTRA_DATA_TYPE, -1);
+					Log.v(TAG,
+							new StringBuilder()
+									.append("data received from Arduino with type: ")
+									.append(dataType).toString());
+					if (dataType == ServiceIntentConfig.CHAR_ARRAY_EXTRA) {
+						chData = intent
+								.getCharArrayExtra(ServiceIntentConfig.EXTRA_DATA);
+					}
+					if (dataType == ServiceIntentConfig.STRING_EXTRA) {
+						strData = intent
+								.getStringExtra(ServiceIntentConfig.EXTRA_DATA);
+					}
+				} else if (configuredIntents.getIntentNameActionDisconnect()
+						.equals(action)) {
+					Logger.d(TAG, "DISCONNECT request received");
+					Log.v(TAG, "DISCONNECT request received");
+					Intent i = new Intent(context, BTService.class);
+					i.setAction(configuredIntents
+							.getIntentNameActionDisconnect());
+					i.replaceExtras(intent);
+					context.startService(i);
+				} else if (configuredIntents
+						.getIntentNameActionConnectedDevices().equals(action)) {
+					Logger.d(TAG, "GET_CONNECTED_DEVICES request received");
+						Log.v(TAG, "GET_CONNECTED_DEVICES request received");
+					Intent i = new Intent(context, BTService.class);
+					i.setAction(configuredIntents
+							.getIntentNameActionGetConnectedDevices());
+					context.startService(i);
+				}
+			}
+		}
+	}
 
     //moved into main fragment
     //   private static final int ASK_ACTIVATION = 1;
@@ -48,14 +121,6 @@ private static final String TAG = "accelero";
 
         }
 
-        //initialise floating action button
-        FloatingActionButton();
-        //set up navigation Drawer
-        NavigationDrawer();
-
-        //INITIALISE BLUETOOTH
-        // moved to main fragment
-      //  BluetoothInit();
 
         // masterflow
 
@@ -73,13 +138,18 @@ private static final String TAG = "accelero";
                     .findFragmentById(R.id.container))
                     .setActivateOnItemClick(true);
         }
+        
+        
+        //initialise floating action button
+        FloatingActionButton();
+        //set up navigation Drawer
+        NavigationDrawer();
+
+        //INITIALISE BLUETOOTH
+        // moved to main fragment
+      //  BluetoothInit();
 
     }
-
-
-
-
-
 
 
     //sets up Navigation drawer
