@@ -47,7 +47,11 @@
             android:label="Paired Devices">
 
         </activity>
-
+        
+    <service android:name=".BTService"
+			android:enabled="true" 
+			android:label="BlueTooth Svc" 
+			android:process="com.example.atish.accelero3.service.BTService" />
     </application>
 
 </manifest>
