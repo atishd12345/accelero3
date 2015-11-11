@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.github.amarinoembed.helloamarinoworld;
+package com.example.atish.accelero3;
 
 import at.abraxas.amarino.service.AmarinoService;
 
