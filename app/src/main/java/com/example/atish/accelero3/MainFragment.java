@@ -25,6 +25,8 @@ import at.abraxas.amarino.AmarinoIntent;
 
 public class MainFragment extends Fragment {
 
+	private AmarinoConfigured embeddedAmarino;
+	
     private static final String TAG = "accelero";
 
     //taken from Main activity
@@ -67,7 +69,8 @@ public class MainFragment extends Fragment {
             public void onClick(View v) {
                 // use getactivity to open another activity from a fragment
                 Intent DeviceList = new Intent(getActivity(), DeviceList.class);
-                startActivityForResult(DeviceList, ASK_CONNECTION);
+                //added getActivity as MainActivity now handles the result
+                getActivity().startActivityForResult(DeviceList, ASK_CONNECTION);
             }
         });
 
@@ -77,8 +80,20 @@ public class MainFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (connection != false) {
-                    getActivity().unregisterReceiver(statusAmarino);
-                    Amarino.disconnect(getActivity(), MAC);
+                    // getActivity().unregisterReceiver(statusAmarino);
+                    // Amarino.disconnect(getActivity(), MAC);
+                    
+                    embeddedAmarino.disconnect(MAC);
+			if (null != receiver) {
+				try {
+					unregisterReceiver(receiver);
+				} catch (Exception e) {
+					Log.e(TAG, Log.getStackTraceString(e));
+				}
+			}
+		  connection = false;
+                    
+                    
                      Log.v(TAG, "bt_disconnect onclick After Amarino disconnect");
                     connection = false;
 
@@ -172,81 +187,32 @@ public class MainFragment extends Fragment {
         return true;
     }
 
-    public void BluetoothInit(){
-                Log.v(TAG, "BluetoothInit" );
-        btadapter = BluetoothAdapter.getDefaultAdapter();
-        if(!btadapter.isEnabled()){
-         //   Intent active = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), ASK_ACTIVATION);
+    // public void BluetoothInit(){
+    //             Log.v(TAG, "BluetoothInit" );
+    //     btadapter = BluetoothAdapter.getDefaultAdapter();
+    //     if(!btadapter.isEnabled()){
+    //      //   Intent active = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+    //         startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), ASK_ACTIVATION);
 
-        }
-        if(btadapter== null){
-            Toast.makeText(getActivity(), "oops! NO BT", Toast.LENGTH_SHORT).show();
-        }
-    }
-    public void enableBT(View view){
-        Log.v(TAG, "enableBT" );
-        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (!mBluetoothAdapter.isEnabled()){
-            Intent intentBtEnabled = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            // The REQUEST_ENABLE_BT constant passed to startActivityForResult() is a locally defined integer (which must be greater than 0), that the system passes back to you in your onActivityResult()
-            // implementation as the requestCode parameter.
-            int REQUEST_ENABLE_BT = 1;
-            startActivityForResult(intentBtEnabled, REQUEST_ENABLE_BT);
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.v(TAG, "onActivityResult REQUEST CODE " +requestCode +" ResultCode" +resultCode);
-        switch (requestCode){
-            case ASK_ACTIVATION:
-                if (resultCode == Activity.RESULT_OK)
-                    Toast.makeText(getActivity(), "BT active", Toast.LENGTH_LONG).show();
-                else {
-                    Toast.makeText(getActivity(), "BT inactive", Toast.LENGTH_LONG).show();
-                    //finish();
-                }
-            case ASK_CONNECTION:
-                if(resultCode ==Activity.RESULT_OK){
-
-                    MAC = data.getExtras().getString(DeviceList.MAC_ADDRESS);
-                    Log.v(TAG, "ASK_CONNECTION MAC "+MAC );
-                    Toast.makeText(getActivity(),"MAC Address : " +MAC,Toast.LENGTH_LONG).show();
-
-                    getActivity().registerReceiver(statusAmarino, new IntentFilter(AmarinoIntent.ACTION_CONNECTED));
-                    Amarino.connect(getActivity(), MAC);
-                    Log.v(TAG, "completed Amarino.connect");
-                    connection = true;
-                }
-                else{
-                    Toast.makeText(getActivity(),"Failed to obtain MAC Address",Toast.LENGTH_LONG).show();
-                }
-
-        }
-    }
-
-    public class StatusAmarino extends BroadcastReceiver {
+    //     }
+    //     if(btadapter== null){
+    //         Toast.makeText(getActivity(), "oops! NO BT", Toast.LENGTH_SHORT).show();
+    //     }
+    // }
+    // public void enableBT(View view){
+    //     Log.v(TAG, "enableBT" );
+    //     BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    //     if (!mBluetoothAdapter.isEnabled()){
+    //         Intent intentBtEnabled = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+    //         // The REQUEST_ENABLE_BT constant passed to startActivityForResult() is a locally defined integer (which must be greater than 0), that the system passes back to you in your onActivityResult()
+    //         // implementation as the requestCode parameter.
+    //         int REQUEST_ENABLE_BT = 1;
+    //         startActivityForResult(intentBtEnabled, REQUEST_ENABLE_BT);
+    //     }
+    // }
 
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            Log.v(TAG, "StatusAmarino onReveive connection "+connection );
-            if(AmarinoIntent.ACTION_CONNECT.equals(action)) {
-                connection = true;
-                Log.v(TAG, "StatusAmarino Inside Intent.ACTION_CONNECT connection "+connection );
-                Toast.makeText(getActivity(), "Bluetooth is connected", Toast.LENGTH_LONG).show();
-            }
-                else if(AmarinoIntent.ACTION_CONNECTION_FAILED.equals(action))
-                Toast.makeText(getActivity(),"Error During connection",Toast.LENGTH_LONG).show();
-            else{
-                Log.v(TAG, "StatusAmarino failed on reveive but entered Connection "+connection );
-            }
-        }
-
-
-    }
+	
 
 
 }
