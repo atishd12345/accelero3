@@ -10,6 +10,7 @@ import at.abraxas.amarino.intent.AmarinoServiceIntentConfig;
  * 
  */
 public class ServiceIntentConfig implements AmarinoServiceIntentConfig {
+	//Changed all the namespaces by adding accelero3
 	public static final String DEFAULT_ACTION_CONNECT = "accelero3.bt.intent.action.CONNECT";
 	public static final String DEFAULT_ACTION_DISCONNECT = "accelero3.bt.intent.action.DISCONNECT";
 	public static final String DEFAULT_ACTION_SEND = "accelero3.bt.intent.action.SEND";
