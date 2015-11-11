@@ -27,8 +27,98 @@ import at.abraxas.amarino.log.Logger;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, RoomListFragment.Callbacks {
 
-private static final String TAG = "accelero";
+	private AmarinoConfigured embeddedAmarino;
 
+	private ArduinoReceiver receiver;
+	private ServiceIntentConfig intentConfig;
+	
+	private static String MAC = null;
+    private boolean connection = false;
+    
+private static final String TAG = "accelero";
+  
+  ////old class to be replaced
+  //  public class StatusAmarino extends BroadcastReceiver {
+    	
+  //      @Override
+  //      public void onReceive(Context context, Intent intent) {
+  //          final String action = intent.getAction();
+  //          Log.v(TAG, "StatusAmarino onReveive connection "+connection );
+  //          if(AmarinoIntent.ACTION_CONNECT.equals(action)) {
+  //              connection = true;
+  //              Log.v(TAG, "StatusAmarino Inside Intent.ACTION_CONNECT connection "+connection );
+  //              Toast.makeText(getActivity(), "Bluetooth is connected", Toast.LENGTH_LONG).show();
+  //          }
+  //              else if(AmarinoIntent.ACTION_CONNECTION_FAILED.equals(action))
+  //              Toast.makeText(getActivity(),"Error During connection",Toast.LENGTH_LONG).show();
+  //          else{
+  //              Log.v(TAG, "StatusAmarino failed on reveive but entered Connection "+connection );
+  //          }
+  //      }
+  //  }
+    
+  @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.v(TAG, "onActivityResult REQUEST CODE " +requestCode +" ResultCode" +resultCode);
+        switch (requestCode){
+            case ASK_ACTIVATION:
+                if (resultCode == Activity.RESULT_OK)
+                    Toast.makeText(MainActivity.this, "BT active", Toast.LENGTH_LONG).show();
+                else {
+                    Toast.makeText(MainActivity.this, "BT inactive", Toast.LENGTH_LONG).show();
+                    //finish();
+                }
+            case ASK_CONNECTION:
+                if(resultCode ==Activity.RESULT_OK){
+
+                    MAC = data.getExtras().getString(DeviceList.MAC_ADDRESS);
+                    Log.v(TAG, "ASK_CONNECTION MAC "+MAC );
+                    Toast.makeText(MainActivity.this,"MAC Address : " +MAC,Toast.LENGTH_LONG).show();
+
+                    //registerReceiver(statusAmarino, new IntentFilter(AmarinoIntent.ACTION_CONNECTED));
+                    //Amarino.connect(MainActivity.this, MAC);
+                    //Log.v(TAG, "completed Amarino.connect");
+                    
+                    		receiver = new ArduinoReceiver();
+		intentConfig = new ServiceIntentConfig();
+		registerReceiver(receiver,
+				new IntentFilter(intentConfig.getIntentNameActionConnect()));
+		registerReceiver(receiver,
+				new IntentFilter(intentConfig.getIntentNameActionReceived()));
+		Log.v(TAG, new StringBuilder("bluetooth receiver intent registered")
+				.append(MAC).toString());
+				
+				// create an instance of embeddedAmarino to wrap BT
+		// intent broadcasts to service
+		embeddedAmarino = new AmarinoConfigured(this.getApplicationContext());
+		embeddedAmarino.setIntentConfig(intentConfig);
+		embeddedAmarino.connect(MAC);
+				
+                    connection = true;
+                }
+                case ASK_DISCONNECTION:
+                	if(resultCode ==Activity.RESULT_OK){
+                		MAC = data.getExtras().getString(DeviceList.MAC_ADDRESS);
+                		 Log.v(TAG, "ASK_DISCONNECTION MAC "+MAC );
+                		 
+                	embeddedAmarino.disconnect(MAC);
+			if (null != receiver) {
+				try {
+					unregisterReceiver(receiver);
+				} catch (Exception e) {
+					Log.e(TAG, Log.getStackTraceString(e));
+				}
+			}
+		  connection = false;
+                }
+                else{
+                    Toast.makeText(MainActivity.this,"Failed to obtain MAC Address",Toast.LENGTH_LONG).show();
+                }
+
+        }
+    }
+    
+    
 //This takes care of receiving intents
 public static class ArduinoReceiver extends BroadcastReceiver {
 		@Override
@@ -42,6 +132,7 @@ public static class ArduinoReceiver extends BroadcastReceiver {
 						action)) {
 					Logger.d(TAG, "CONNECT request received");
 					 Log.v(TAG, "CONNECT request received ");
+				//	connection = true;
 					Intent i = new Intent(context, BTService.class);
 					i.setAction(configuredIntents.getIntentNameActionConnect());
 					i.replaceExtras(intent);
