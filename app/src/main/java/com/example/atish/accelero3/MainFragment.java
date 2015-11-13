@@ -20,7 +20,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import at.abraxas.amarino.Amarino;
-import at.abraxas.amarino.AmarinoIntent;
+import at.abraxas.amarino.AmarinoConfigured;
+
 
 
 public class MainFragment extends Fragment {
@@ -28,7 +29,7 @@ public class MainFragment extends Fragment {
 	private AmarinoConfigured embeddedAmarino;
 	
     private static final String TAG = "accelero";
-
+    private MainActivity.ArduinoReceiver receiver;
     //taken from Main activity
     private static final int ASK_ACTIVATION = 1;
     private static final int ASK_CONNECTION = 2;
@@ -36,7 +37,7 @@ public class MainFragment extends Fragment {
     private static String MAC = null;
     private boolean connection = false;
 
-    private StatusAmarino statusAmarino = new StatusAmarino();
+   // private StatusAmarino statusAmarino = new StatusAmarino();
 
     private static EditText test_EditText;
     private static TextView test_TextView;
@@ -86,7 +87,7 @@ public class MainFragment extends Fragment {
                     embeddedAmarino.disconnect(MAC);
 			if (null != receiver) {
 				try {
-					unregisterReceiver(receiver);
+					getActivity().unregisterReceiver(receiver);
 				} catch (Exception e) {
 					Log.e(TAG, Log.getStackTraceString(e));
 				}

@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -28,6 +31,9 @@ import at.abraxas.amarino.log.Logger;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, RoomListFragment.Callbacks {
 
 	private AmarinoConfigured embeddedAmarino;
+
+    private static final int ASK_ACTIVATION = 1;
+    private static final int ASK_CONNECTION = 2;
 
 	private ArduinoReceiver receiver;
 	private ServiceIntentConfig intentConfig;
@@ -96,21 +102,21 @@ private static final String TAG = "accelero";
 				
                     connection = true;
                 }
-                case ASK_DISCONNECTION:
-                	if(resultCode ==Activity.RESULT_OK){
-                		MAC = data.getExtras().getString(DeviceList.MAC_ADDRESS);
-                		 Log.v(TAG, "ASK_DISCONNECTION MAC "+MAC );
-                		 
-                	embeddedAmarino.disconnect(MAC);
-			if (null != receiver) {
-				try {
-					unregisterReceiver(receiver);
-				} catch (Exception e) {
-					Log.e(TAG, Log.getStackTraceString(e));
-				}
-			}
-		  connection = false;
-                }
+//                case ASK_DISCONNECTION:
+//                	if(resultCode ==Activity.RESULT_OK){
+//                		MAC = data.getExtras().getString(DeviceList.MAC_ADDRESS);
+//                		 Log.v(TAG, "ASK_DISCONNECTION MAC "+MAC );
+//
+//                	embeddedAmarino.disconnect(MAC);
+//			if (null != receiver) {
+//				try {
+//					unregisterReceiver(receiver);
+//				} catch (Exception e) {
+//					Log.e(TAG, Log.getStackTraceString(e));
+//				}
+//			}
+//		  connection = false;
+//                }
                 else{
                     Toast.makeText(MainActivity.this,"Failed to obtain MAC Address",Toast.LENGTH_LONG).show();
                 }
