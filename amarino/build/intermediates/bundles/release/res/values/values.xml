@@ -57,7 +57,7 @@
     <string name="service_disconnected_from">Disconnected from %s</string>
     <string name="service_message_to_send">message to send: %s</string>
     <string name="service_no_active_connections">No active connections</string>
-    <string name="service_notify_text">Amarino is running</string>
+    <string name="service_notify_text">ACCELERO is running</string>
     <string name="service_pairing_request">Pairing request for %s\n\nPull down your status bar to enter the pin.</string>
     <string name="service_ready_to_shutdown">service ready to shutdown</string>
     <string name="service_started_title">background service started</string>

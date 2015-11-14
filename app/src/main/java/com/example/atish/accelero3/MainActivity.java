@@ -13,6 +13,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 
+
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -28,7 +29,7 @@ import at.abraxas.amarino.Amarino;
 import at.abraxas.amarino.AmarinoConfigured;
 import at.abraxas.amarino.log.Logger;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, RoomListFragment.Callbacks {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, RoomListFragment.Callbacks, Communicator {
 
 	private AmarinoConfigured embeddedAmarino;
 
@@ -39,93 +40,125 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	private ServiceIntentConfig intentConfig;
 	
 	private static String MAC = null;
-    private boolean connection = false;
+    public boolean connection = false;
     
-private static final String TAG = "accelero";
-  
-  ////old class to be replaced
-  //  public class StatusAmarino extends BroadcastReceiver {
-    	
-  //      @Override
-  //      public void onReceive(Context context, Intent intent) {
-  //          final String action = intent.getAction();
-  //          Log.v(TAG, "StatusAmarino onReveive connection "+connection );
-  //          if(AmarinoIntent.ACTION_CONNECT.equals(action)) {
-  //              connection = true;
-  //              Log.v(TAG, "StatusAmarino Inside Intent.ACTION_CONNECT connection "+connection );
-  //              Toast.makeText(getActivity(), "Bluetooth is connected", Toast.LENGTH_LONG).show();
-  //          }
-  //              else if(AmarinoIntent.ACTION_CONNECTION_FAILED.equals(action))
-  //              Toast.makeText(getActivity(),"Error During connection",Toast.LENGTH_LONG).show();
-  //          else{
-  //              Log.v(TAG, "StatusAmarino failed on reveive but entered Connection "+connection );
-  //          }
-  //      }
-  //  }
-    
-  @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.v(TAG, "onActivityResult REQUEST CODE " +requestCode +" ResultCode" +resultCode);
-        switch (requestCode){
-            case ASK_ACTIVATION:
-                if (resultCode == Activity.RESULT_OK)
-                    Toast.makeText(MainActivity.this, "BT active", Toast.LENGTH_LONG).show();
-                else {
-                    Toast.makeText(MainActivity.this, "BT inactive", Toast.LENGTH_LONG).show();
-                    //finish();
-                }
-            case ASK_CONNECTION:
-                if(resultCode ==Activity.RESULT_OK){
+    private static final String TAG = "accelero";
 
-                    MAC = data.getExtras().getString(DeviceList.MAC_ADDRESS);
-                    Log.v(TAG, "ASK_CONNECTION MAC "+MAC );
-                    Toast.makeText(MainActivity.this,"MAC Address : " +MAC,Toast.LENGTH_LONG).show();
+    private boolean mTwoPane;
+    //   Used to store the last screen title. For use in {@link restoreActionBar()}.
 
-                    //registerReceiver(statusAmarino, new IntentFilter(AmarinoIntent.ACTION_CONNECTED));
-                    //Amarino.connect(MainActivity.this, MAC);
-                    //Log.v(TAG, "completed Amarino.connect");
-                    
-                    		receiver = new ArduinoReceiver();
-		intentConfig = new ServiceIntentConfig();
-		registerReceiver(receiver,
-				new IntentFilter(intentConfig.getIntentNameActionConnect()));
-		registerReceiver(receiver,
-				new IntentFilter(intentConfig.getIntentNameActionReceived()));
-		Log.v(TAG, new StringBuilder("bluetooth receiver intent registered")
-				.append(MAC).toString());
-				
-				// create an instance of embeddedAmarino to wrap BT
-		// intent broadcasts to service
-		embeddedAmarino = new AmarinoConfigured(this.getApplicationContext());
-		embeddedAmarino.setIntentConfig(intentConfig);
-		embeddedAmarino.connect(MAC);
-				
-                    connection = true;
-                }
-//                case ASK_DISCONNECTION:
-//                	if(resultCode ==Activity.RESULT_OK){
-//                		MAC = data.getExtras().getString(DeviceList.MAC_ADDRESS);
-//                		 Log.v(TAG, "ASK_DISCONNECTION MAC "+MAC );
-//
-//                	embeddedAmarino.disconnect(MAC);
-//			if (null != receiver) {
-//				try {
-//					unregisterReceiver(receiver);
-//				} catch (Exception e) {
-//					Log.e(TAG, Log.getStackTraceString(e));
-//				}
-//			}
-//		  connection = false;
-//                }
-                else{
-                    Toast.makeText(MainActivity.this,"Failed to obtain MAC Address",Toast.LENGTH_LONG).show();
-                }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        Log.v(TAG, "MainActivity Phone onCreate mTwoPane" + mTwoPane);
+        // start the Main fragment
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container, new RoomListFragment()).commit();
+        }
 
+        // masterflow
+        if (findViewById(R.id.room_detail_container) != null) {
+            // The detail container view will be present only in the
+            // large-screen layouts (res/values-large and
+            // res/values-sw600dp). If this view is present, then the
+            // activity should be in two-pane mode.
+            mTwoPane = true;
+            Log.v(TAG, "MainActivity Tablet mTwoPane " + mTwoPane);
+            // In two-pane mode, list items should be given the
+            // 'activated' state when touched.
+            ((RoomListFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.container))
+                    .setActivateOnItemClick(true);
+        }
+
+        //initialise floating action button
+        FloatingActionButton();
+        //set up navigation Drawer
+        NavigationDrawer();
+
+        //INITIALISE BLUETOOTH
+        // moved to main fragment
+        //  BluetoothInit();
+    }
+    //sets up floating action button
+    public void FloatingActionButton(){
+        Log.v(TAG, "MainActivity FloatingActionButton ");
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with quick BT settings", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+    }
+
+    //sets up Navigation drawer
+    public void NavigationDrawer(){
+        Log.v(TAG, "MainActivity NavigationDrawer ");
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+    }
+    @Override
+    public void connect(String MAC) {
+
+    }
+
+    @Override
+    public void connectPaired() {
+        Intent DeviceList = new Intent(this, DeviceList.class);
+        startActivityForResult(DeviceList, ASK_CONNECTION);
+        connection = true;
+    }
+
+    @Override
+    public void disconnect(String MAC) {
+        if (connection != false) {
+            embeddedAmarino.disconnect(MAC);
+            Log.v(TAG, "Pt1 Amarino Disconnected");
+            if (null != receiver) {
+                Log.v(TAG, "Pt2 Listener Unregistered");
+                try {
+                    unregisterReceiver(receiver);
+                } catch (Exception e) {
+                    Log.e(TAG, Log.getStackTraceString(e));
+                }
+            }
+            connection = false;
+        }
+        else {
+            Log.v(TAG, "Already Disconnected and Unregistered");
+            Toast.makeText(this,"Already Done:unreg/dis: receiver/connection" +receiver +connection, Toast.LENGTH_SHORT).show();
         }
     }
-    
-    
-//This takes care of receiving intents
+
+    @Override
+    public void sendCommand(String MAC,char flag,int value) {
+        if(connection != false){
+            Amarino.sendDataToArduino(this, MAC, 'A', 1);
+            Log.v(TAG, "BTN " + flag + value + connection);
+        }
+        else{
+            Log.v(TAG, "BTN " +flag +value +connection );
+            Toast.makeText(this,"BTN " +flag +value +connection, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+
+    //This takes care of receiving intents
 public static class ArduinoReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -196,87 +229,65 @@ public static class ArduinoReceiver extends BroadcastReceiver {
 		}
 	}
 
-    //moved into main fragment
-    //   private static final int ASK_ACTIVATION = 1;
-  //  private static final int ASK_CONNECTION = 2;
-//    private BluetoothAdapter btadapter = null;
-//    private static String MAC = null;
 
-    private boolean mTwoPane;
 
-    //   Used to store the last screen title. For use in {@link restoreActionBar()}.
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-    Log.v(TAG, "MainActivity Phone onCreate mTwoPane" + mTwoPane);
-        // start the Main fragment
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new RoomListFragment()).commit();
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.v(TAG, "onActivityResult REQUEST CODE " +requestCode +" ResultCode" +resultCode);
+        switch (requestCode){
+            case ASK_ACTIVATION:
+                if (resultCode == Activity.RESULT_OK)
+                    Toast.makeText(MainActivity.this, "BT active", Toast.LENGTH_LONG).show();
+                else {
+                    Toast.makeText(MainActivity.this, "BT inactive", Toast.LENGTH_LONG).show();
+                    //finish();
+                }
+            case ASK_CONNECTION:
+                if(resultCode ==Activity.RESULT_OK){
+
+                    MAC = data.getExtras().getString(DeviceList.MAC_ADDRESS);
+                    Log.v(TAG, "ASK_CONNECTION MAC "+MAC );
+                    Toast.makeText(MainActivity.this,"MAC Address : " +MAC,Toast.LENGTH_LONG).show();
+
+                    receiver = new ArduinoReceiver();
+                    intentConfig = new ServiceIntentConfig();
+                    registerReceiver(receiver,
+                            new IntentFilter(intentConfig.getIntentNameActionConnect()));
+                    registerReceiver(receiver,
+                            new IntentFilter(intentConfig.getIntentNameActionReceived()));
+                    Log.v(TAG, new StringBuilder("bluetooth receiver intent registered")
+                            .append(MAC).toString());
+
+                    // create an instance of embeddedAmarino to wrap BT
+                    // intent broadcasts to service
+                    embeddedAmarino = new AmarinoConfigured(this.getApplicationContext());
+                    embeddedAmarino.setIntentConfig(intentConfig);
+                    embeddedAmarino.connect(MAC);
+
+                    connection = true;
+                }
+//                case ASK_DISCONNECTION:
+//                	if(resultCode ==Activity.RESULT_OK){
+//                		MAC = data.getExtras().getString(DeviceList.MAC_ADDRESS);
+//                		 Log.v(TAG, "ASK_DISCONNECTION MAC "+MAC );
+//
+//                	embeddedAmarino.disconnect(MAC);
+//			if (null != receiver) {
+//				try {
+//					unregisterReceiver(receiver);
+//				} catch (Exception e) {
+//					Log.e(TAG, Log.getStackTraceString(e));
+//				}
+//			}
+//		  connection = false;
+//                }
+                else{
+                    Toast.makeText(MainActivity.this,"Failed to obtain MAC Address",Toast.LENGTH_LONG).show();
+                }
 
         }
-
-
-        // masterflow
-
-        if (findViewById(R.id.room_detail_container) != null) {
-        
-            // The detail container view will be present only in the
-            // large-screen layouts (res/values-large and
-            // res/values-sw600dp). If this view is present, then the
-            // activity should be in two-pane mode.
-            mTwoPane = true;
-        Log.v(TAG, "MainActivity Tablet mTwoPane " + mTwoPane);
-            // In two-pane mode, list items should be given the
-            // 'activated' state when touched.
-            ((RoomListFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.container))
-                    .setActivateOnItemClick(true);
-        }
-        
-        
-        //initialise floating action button
-        FloatingActionButton();
-        //set up navigation Drawer
-        NavigationDrawer();
-
-        //INITIALISE BLUETOOTH
-        // moved to main fragment
-      //  BluetoothInit();
-
     }
-
-
-    //sets up Navigation drawer
-    public void NavigationDrawer(){
-         Log.v(TAG, "MainActivity NavigationDrawer ");
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-    }
-    //sets up floating action button
-     public void FloatingActionButton(){
-          Log.v(TAG, "MainActivity FloatingActionButton ");
-         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-         fab.setOnClickListener(new View.OnClickListener() {
-             @Override
-             public void onClick(View view) {
-                 Snackbar.make(view, "Replace with quick BT settings", Snackbar.LENGTH_LONG)
-                         .setAction("Action", null).show();
-             }
-         });
-     }
 
     /**
      * Callback method from {@link RoomListFragment.Callbacks}
@@ -284,7 +295,7 @@ public static class ArduinoReceiver extends BroadcastReceiver {
      */
     @Override
     public void onItemSelected(String id) {
-         Log.v(TAG, "MainActivity onItemSelected mTwoPane"+mTwoPane);
+         Log.v(TAG, "MainActivity onItemSelected mTwoPane" + mTwoPane);
         if (mTwoPane) {
             Log.v(TAG, "MainActivity onItemSelected Tablet inside ");
             // In two-pane mode, show the detail view in this activity by
@@ -378,9 +389,11 @@ public static class ArduinoReceiver extends BroadcastReceiver {
 
         } else if (id == R.id.nav_help) {
              Log.v(TAG, "MainActivity Help Selected ");
+          //  Amarino.sendDataToArduino(this, MAC, 'A', 1);
 
         } else if (id == R.id.nav_about) {
              Log.v(TAG, "MainActivity About Selected ");
+          //  Amarino.sendDataToArduino(this, MAC, 'A', 0);
              Toast.makeText(getApplicationContext(), "ABOUT",
                       Toast.LENGTH_SHORT).show();
 
@@ -398,4 +411,20 @@ public static class ArduinoReceiver extends BroadcastReceiver {
     }
 
 
+
+    public boolean setBluetooth(boolean enable) {
+        Log.v(TAG, "setBluetooth");
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        boolean isEnabled = bluetoothAdapter.isEnabled();
+        if (enable && !isEnabled) {
+            Log.v(TAG, "Enable" +enable );
+            return bluetoothAdapter.enable();
+        }
+        else if(!enable && isEnabled) {
+            Log.v(TAG, "Enable" +enable );
+            return bluetoothAdapter.disable();
+        }
+        // No need to change bluetooth state
+        return true;
+    }
 }

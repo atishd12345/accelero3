@@ -54,7 +54,7 @@
 
 	<!-- Service messages -->
 	<string name="service_started_title">background service started</string>
-	<string name="service_notify_text">Amarino is running</string>
+	<string name="service_notify_text">ACCELERO is running</string>
 	<string name="service_active_connections">Active connections: %s</string>
 	<string name="service_no_active_connections">No active connections</string>
 	<string name="service_connecting_to">Connecting to %s</string>
