@@ -3,7 +3,6 @@ package com.example.atish.accelero3;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -19,7 +18,6 @@ import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
 import android.view.MenuItem;
-import android.support.v4.app.NavUtils;
 
 import java.util.List;
 
@@ -57,7 +55,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         int id = item.getItemId();
         if (id == android.R.id.home) {
             if (!super.onMenuItemSelected(featureId, item)) {
-                NavUtils.navigateUpFromSameTask(this);
+                // MainActivity is already under the header list. finish()
+                // returns to it without rebuilding the task.
+                finish();
             }
             return true;
         }
@@ -199,7 +199,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         public boolean onOptionsItemSelected(MenuItem item) {
             int id = item.getItemId();
             if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
+                finishPreferencePane(this);
                 return true;
             }
             return super.onOptionsItemSelected(item);
@@ -229,7 +229,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         public boolean onOptionsItemSelected(MenuItem item) {
             int id = item.getItemId();
             if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
+                finishPreferencePane(this);
                 return true;
             }
             return super.onOptionsItemSelected(item);
@@ -259,10 +259,21 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         public boolean onOptionsItemSelected(MenuItem item) {
             int id = item.getItemId();
             if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
+                finishPreferencePane(this);
                 return true;
             }
             return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * On a handset the preference pane is a second SettingsActivity sitting on
+     * top of the header list. Starting another SettingsActivity without
+     * finishing this one leaves the detail screen under the new header list.
+     */
+    private static void finishPreferencePane(PreferenceFragment fragment) {
+        if (fragment.getActivity() != null) {
+            fragment.getActivity().finish();
         }
     }
 }

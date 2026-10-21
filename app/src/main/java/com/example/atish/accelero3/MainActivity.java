@@ -1,13 +1,12 @@
 package com.example.atish.accelero3;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -20,9 +19,6 @@ import android.view.View;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, RoomListFragment.Callbacks {
 
-
-
-   //   Used to store the last screen title. For use in {@link restoreActionBar()}.
 
 
     private boolean mTwoPane;
@@ -46,23 +42,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //set up navigation Drawer
         NavigationDrawer();
 
+        // room_detail_container is present only in layout-sw600dp/content_main.xml.
+        mTwoPane = findViewById(R.id.room_detail_container) != null;
+    }
 
-        // masterflow
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // commit() in onCreate is still pending until the fragment manager
+        // starts, so the list view does not exist yet during onCreate.
+        activateTwoPaneList();
+    }
 
-        if (findViewById(R.id.room_detail_container) != null) {
-            // The detail container view will be present only in the
-            // large-screen layouts (res/values-large and
-            // res/values-sw600dp). If this view is present, then the
-            // activity should be in two-pane mode.
-            mTwoPane = true;
-
-            // In two-pane mode, list items should be given the
-            // 'activated' state when touched.
-            ((RoomListFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.container))
-                    .setActivateOnItemClick(true);
+    private void activateTwoPaneList() {
+        if (!mTwoPane) {
+            return;
         }
-
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
+        if (fragment instanceof RoomListFragment && fragment.getView() != null) {
+            ((RoomListFragment) fragment).setActivateOnItemClick(true);
+        }
     }
 
     //sets up Navigation drawer
@@ -160,23 +159,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-//        FragmentManager fragmentManager = getFragmentManager();
-//        android.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
-        RoomListFragment RoomListFrag = new RoomListFragment();
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
-            // Handle the Home action
-            String tag= "tag";
-            // getFragmentManager().beginTransaction().replace(R.id.container, new RoomListFragment(), "stuff").commit();
-
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, RoomListFrag)
-                    .commit();
-//            transaction.beginTransaction()
-//                    .replace(R.id.container, new RoomListFragment())
-//                    .commit();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, new RoomListFragment());
+            if (mTwoPane) {
+                Fragment detailFragment = getSupportFragmentManager()
+                        .findFragmentById(R.id.room_detail_container);
+                if (detailFragment != null) {
+                    transaction.remove(detailFragment);
+                }
+            }
+            transaction.commit();
+            getSupportFragmentManager().executePendingTransactions();
+            activateTwoPaneList();
+            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            if (navigationView != null) {
+                navigationView.setCheckedItem(R.id.nav_home);
+            }
 
         } else if (id == R.id.nav_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);

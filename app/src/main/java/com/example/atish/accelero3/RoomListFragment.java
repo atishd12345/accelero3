@@ -3,9 +3,7 @@ package com.example.atish.accelero3;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -94,6 +92,18 @@ public class RoomListFragment extends ListFragment {
     }
 
     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        // Enable the highlight once the row view exists. MainActivity adds this
+        // fragment with commit(), so the list view is not ready in the
+        // activity's onCreate.
+        if (getActivity() != null
+                && getActivity().findViewById(R.id.room_detail_container) != null) {
+            setActivateOnItemClick(true);
+        }
+    }
+
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
@@ -116,6 +126,10 @@ public class RoomListFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
+
+        // Remember the choice so it can be restored after rotation. ListView
+        // drops setItemChecked calls made before choice mode is enabled.
+        setActivatedPosition(position);
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
@@ -141,6 +155,9 @@ public class RoomListFragment extends ListFragment {
         getListView().setChoiceMode(activateOnItemClick
                 ? ListView.CHOICE_MODE_SINGLE
                 : ListView.CHOICE_MODE_NONE);
+        if (activateOnItemClick && mActivatedPosition != ListView.INVALID_POSITION) {
+            setActivatedPosition(mActivatedPosition);
+        }
     }
 
     private void setActivatedPosition(int position) {

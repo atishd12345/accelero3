@@ -33,11 +33,11 @@
         <activity
             android:name=".RoomDetailActivity"
             android:label="@string/title_room_detail"
-            android:parentActivityName=".RoomListActivity"
+            android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.atish.accelero3.RoomListActivity" />
+                android:value="com.example.atish.accelero3.MainActivity" />
         </activity>
     </application>
 

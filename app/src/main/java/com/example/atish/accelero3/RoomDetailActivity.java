@@ -1,20 +1,18 @@
 package com.example.atish.accelero3;
 
 import android.support.v7.app.AppCompatActivity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
-import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 
 /**
  * An activity representing a single Room detail screen. This
  * activity is only used on handset devices. On tablet-size devices,
  * item details are presented side-by-side with a list of items
- * in a {@link RoomListActivity}.
+ * in {@link MainActivity}.
  * <p/>
  * This activity is mostly just a 'shell' activity containing nothing
  * more than a {@link RoomDetailFragment}.
@@ -67,14 +65,11 @@ public class RoomDetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
-            // This ID represents the Home or Up button. In the case of this
-            // activity, the Up button is shown. Use NavUtils to allow users
-            // to navigate up one level in the application structure. For
-            // more details, see the Navigation pattern on Android Design:
-            //
-            // http://developer.android.com/design/patterns/navigation.html#up-vs-back
-            //
-            NavUtils.navigateUpTo(this, new Intent(this, RoomListActivity.class));
+            // The room list lives in MainActivity, which is already under this
+            // screen. finish() returns to that instance. Navigating up to
+            // RoomListActivity rebuilt a second list with no navigation drawer,
+            // and CLEAR_TOP would also drop MainActivity.
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
