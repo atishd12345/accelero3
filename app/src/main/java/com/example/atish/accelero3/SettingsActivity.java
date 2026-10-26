@@ -3,7 +3,6 @@ package com.example.atish.accelero3;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -19,7 +18,6 @@ import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
 import android.view.MenuItem;
-import android.support.v4.app.NavUtils;
 
 import java.util.List;
 
@@ -57,7 +55,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         int id = item.getItemId();
         if (id == android.R.id.home) {
             if (!super.onMenuItemSelected(featureId, item)) {
-                NavUtils.navigateUpFromSameTask(this);
+                // MainActivity is already under the header list. finish()
+                // returns to it without rebuilding the task.
+                finish();
             }
             return true;
         }
@@ -98,18 +98,22 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
-            String stringValue = value.toString();
+            if (preference == null) {
+                return true;
+            }
+            String stringValue = value == null ? "" : value.toString();
 
             if (preference instanceof ListPreference) {
                 // For list preferences, look up the correct display value in
                 // the preference's 'entries' list.
                 ListPreference listPreference = (ListPreference) preference;
                 int index = listPreference.findIndexOfValue(stringValue);
+                CharSequence[] entries = listPreference.getEntries();
 
                 // Set the summary to reflect the new value.
                 preference.setSummary(
-                        index >= 0
-                                ? listPreference.getEntries()[index]
+                        index >= 0 && entries != null && index < entries.length
+                                ? entries[index]
                                 : null);
 
             } else if (preference instanceof RingtonePreference) {
@@ -120,17 +124,18 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     preference.setSummary(R.string.pref_ringtone_silent);
 
                 } else {
-                    Ringtone ringtone = RingtoneManager.getRingtone(
-                            preference.getContext(), Uri.parse(stringValue));
-
-                    if (ringtone == null) {
-                        // Clear the summary if there was a lookup error.
+                    Ringtone ringtone = null;
+                    try {
+                        ringtone = RingtoneManager.getRingtone(
+                                preference.getContext(), Uri.parse(stringValue));
+                        if (ringtone == null) {
+                            preference.setSummary(null);
+                        } else {
+                            preference.setSummary(ringtone.getTitle(preference.getContext()));
+                        }
+                    } catch (RuntimeException ex) {
+                        // A bad or inaccessible ringtone URI used to crash settings.
                         preference.setSummary(null);
-                    } else {
-                        // Set the summary to reflect the new ringtone display
-                        // name.
-                        String name = ringtone.getTitle(preference.getContext());
-                        preference.setSummary(name);
                     }
                 }
 
@@ -153,6 +158,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * @see #sBindPreferenceSummaryToValueListener
      */
     private static void bindPreferenceSummaryToValue(Preference preference) {
+        if (preference == null) {
+            return;
+        }
         // Set the listener to watch for value changes.
         preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
 
@@ -168,6 +176,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * This method stops fragment injection in malicious applications.
      * Make sure to deny any unknown fragments here.
      */
+    @Override
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
                 || GeneralPreferenceFragment.class.getName().equals(fragmentName)
@@ -199,7 +208,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         public boolean onOptionsItemSelected(MenuItem item) {
             int id = item.getItemId();
             if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
+                finishPreferencePane(this);
                 return true;
             }
             return super.onOptionsItemSelected(item);
@@ -229,7 +238,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         public boolean onOptionsItemSelected(MenuItem item) {
             int id = item.getItemId();
             if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
+                finishPreferencePane(this);
                 return true;
             }
             return super.onOptionsItemSelected(item);
@@ -259,10 +268,21 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         public boolean onOptionsItemSelected(MenuItem item) {
             int id = item.getItemId();
             if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
+                finishPreferencePane(this);
                 return true;
             }
             return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * On a handset the preference pane is a second SettingsActivity sitting on
+     * top of the header list. Starting another SettingsActivity without
+     * finishing this one leaves the detail screen under the new header list.
+     */
+    private static void finishPreferencePane(PreferenceFragment fragment) {
+        if (fragment.getActivity() != null) {
+            fragment.getActivity().finish();
         }
     }
 }
