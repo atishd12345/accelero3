@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -67,26 +68,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //sets up Navigation drawer
     public void NavigationDrawer(){
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
+        if (drawer != null && toolbar != null) {
+            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                    this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+            drawer.setDrawerListener(toggle);
+            toggle.syncState();
+        }
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        if (navigationView != null) {
+            navigationView.setNavigationItemSelectedListener(this);
+        }
 
     }
     //sets up floating action button
      public void FloatingActionButton(){
          FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+         if (fab == null) {
+             return;
+         }
          fab.setOnClickListener(new View.OnClickListener() {
              @Override
              public void onClick(View view) {
-                 Snackbar.make(view, "Replace with quick BT settings", Snackbar.LENGTH_LONG)
-                         .setAction("Action", null).show();
+                 Snackbar.make(view, R.string.fab_quick_settings, Snackbar.LENGTH_LONG).show();
              }
          });
      }
@@ -97,6 +106,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     @Override
     public void onItemSelected(String id) {
+        if (id == null) {
+            return;
+        }
         if (mTwoPane) {
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
@@ -149,49 +161,79 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
+        if (drawer != null && drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
         }
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, new RoomListFragment());
-            if (mTwoPane) {
-                Fragment detailFragment = getSupportFragmentManager()
-                        .findFragmentById(R.id.room_detail_container);
-                if (detailFragment != null) {
-                    transaction.remove(detailFragment);
-                }
-            }
-            transaction.commit();
-            getSupportFragmentManager().executePendingTransactions();
-            activateTwoPaneList();
+            showRoomList();
             NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
             if (navigationView != null) {
                 navigationView.setCheckedItem(R.id.nav_home);
             }
 
         } else if (id == R.id.nav_settings) {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(this, SettingsActivity.class));
 
         } else if (id == R.id.nav_help) {
+            showMessage(item.getTitle(), R.string.help_message);
 
         } else if (id == R.id.nav_about) {
-
+            showMessage(item.getTitle(), R.string.about_message);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+        if (drawer != null) {
+            drawer.closeDrawer(GravityCompat.START);
+        }
         return true;
+    }
+
+    /**
+     * Show the room list. Replacing it on every Home tap threw away the scroll
+     * position and the selected row, so an existing list is kept.
+     */
+    private void showRoomList() {
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.container);
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        boolean changed = false;
+
+        if (current instanceof RoomListFragment) {
+            ((RoomListFragment) current).clearActivated();
+        } else {
+            transaction.replace(R.id.container, new RoomListFragment());
+            changed = true;
+        }
+
+        if (mTwoPane) {
+            Fragment detailFragment = getSupportFragmentManager()
+                    .findFragmentById(R.id.room_detail_container);
+            if (detailFragment != null) {
+                transaction.remove(detailFragment);
+                changed = true;
+            }
+        }
+
+        if (changed) {
+            transaction.commit();
+            getSupportFragmentManager().executePendingTransactions();
+        }
+        activateTwoPaneList();
+    }
+
+    private void showMessage(CharSequence title, int messageResId) {
+        new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(messageResId)
+                .setPositiveButton(android.R.string.ok, null)
+                .show();
     }
 
 }

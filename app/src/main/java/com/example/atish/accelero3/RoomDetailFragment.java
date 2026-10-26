@@ -62,20 +62,26 @@ public class RoomDetailFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_room_detail, container, false);
 
         // Show the dummy content as text in a TextView.
-        if (mItem != null) {
-            TextView detailView = (TextView) rootView.findViewById(R.id.room_detail);
-            if (detailView != null) {
-                Activity activity = getActivity();
-                boolean hasCollapsingTitle = activity != null
-                        && activity.findViewById(R.id.toolbar_layout) != null;
-                if (hasCollapsingTitle) {
-                    detailView.setText(mItem.details);
-                } else {
-                    // Two-pane layout has no collapsing toolbar, so keep the room name
-                    // with the detail body.
-                    detailView.setText(mItem.content + "\n\n" + mItem.details);
-                }
-            }
+        TextView detailView = (TextView) rootView.findViewById(R.id.room_detail);
+        if (detailView == null) {
+            return rootView;
+        }
+        if (mItem == null) {
+            detailView.setText(R.string.room_not_found);
+            return rootView;
+        }
+
+        Activity activity = getActivity();
+        boolean hasCollapsingTitle = activity != null
+                && activity.findViewById(R.id.toolbar_layout) != null;
+        String details = mItem.details == null ? "" : mItem.details;
+        if (hasCollapsingTitle) {
+            detailView.setText(details);
+        } else {
+            // Two-pane layout has no collapsing toolbar, so keep the room name
+            // with the detail body.
+            String content = mItem.content == null ? "" : mItem.content;
+            detailView.setText(content + "\n\n" + details);
         }
 
         return rootView;

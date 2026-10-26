@@ -127,6 +127,10 @@ public class RoomListFragment extends ListFragment {
     public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
 
+        if (position < 0 || position >= DummyContent.ITEMS.size()) {
+            return;
+        }
+
         // Remember the choice so it can be restored after rotation. ListView
         // drops setItemChecked calls made before choice mode is enabled.
         setActivatedPosition(position);
@@ -134,6 +138,17 @@ public class RoomListFragment extends ListFragment {
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
         mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id);
+    }
+
+    /**
+     * Clears the highlighted row. Used when Home closes the open detail pane.
+     */
+    public void clearActivated() {
+        if (getView() == null) {
+            mActivatedPosition = ListView.INVALID_POSITION;
+            return;
+        }
+        setActivatedPosition(ListView.INVALID_POSITION);
     }
 
     @Override
@@ -162,7 +177,9 @@ public class RoomListFragment extends ListFragment {
 
     private void setActivatedPosition(int position) {
         if (position == ListView.INVALID_POSITION) {
-            getListView().setItemChecked(mActivatedPosition, false);
+            if (mActivatedPosition != ListView.INVALID_POSITION) {
+                getListView().setItemChecked(mActivatedPosition, false);
+            }
         } else {
             getListView().setItemChecked(position, true);
         }

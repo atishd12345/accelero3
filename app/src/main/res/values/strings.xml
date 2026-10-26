@@ -67,7 +67,12 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
-    <string name="title_room_list">Device</string>
+    <string name="title_room_list">Rooms</string>
     <string name="title_room_detail">Room Detail</string>
+    <string name="room_not_found">That room could not be found.</string>
+    <string name="help_message">Choose a room to see the devices in it. On a larger screen the devices stay next to the list. Settings is in the toolbar menu and in the navigation drawer.</string>
+    <string name="about_message">accelero3 lists rooms and the devices in each room.</string>
+    <string name="fab_quick_settings">Quick settings are not available yet.</string>
+    <string name="fab_detail_action">No detail action is available yet.</string>
 
 </resources>
